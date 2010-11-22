@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+=head1 SYNOPSIS
+
+  hidiff old_file new_file
+
+=head1 DESCRIPTION
+
+Highlight the differences between two files using curses.
+
+The result of thinking, wouldn't it be nice to do "watch -d"
+on two files.
+
+=head1 NOTES
+
+This is not a diff-like utility, it doesn't yet doi Longest Common Substring
+cleverness so an insertion or deletion will throw the rest of the line.
+If I can figure out a way (or ways) to represent a diff in curses 
+highlights and colours then I might implement it.  Ideas welcome.
+
+hidiff currently isn't rigorous about representing all differences,
+tabs, line-endings and non-ascii may cause problems.
+
+=head1 AUTHOR
+
+Brad Bowman, hidiff at bereft net
+
+=head1 COPYRIGHT
+
+Copyright (c) 2007 Brad Bowman. All rights reserved.
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut
+use warnings;
+use strict;
+use Curses;
+
+my ($old_name, $new_name) = @ARGV;
+open my $old_fh, $old_name or die "Couldn't open $old_name: $!";
+open my $new_fh, $new_name or die "Couldn't open $new_name: $!";
+
+initscr;
+
+# Draw files
+while ( !eof($old_fh) || !eof($new_fh) ) {
+    my $old_line = <$old_fh>;
+    my $new_line = <$new_fh>;
+    chomp($old_line); 
+    chomp($new_line);
+    my $old_len = length($old_line);
+    my $new_len = length($new_line);
+    #die join ' ', map { ord($_) } split //, $new_line;
+    
+    my $max_len = ($old_len > $new_len) ? $old_len : $new_len;
+    for my $i (0..$max_len-1) {
+        my $oc = substr($old_line, $i, 1);
+        my $nc = substr($new_line, $i, 1);
+        if ($oc eq $nc) {
+            addch($oc);
+        } else {
+            standout;
+            addch( (ord($nc) != 0) ? $nc : ' ');
+            standend;
+        }
+    }
+    addch("\n");
+}
+
+refresh;
+
+END {
+    endwin;
+}
+

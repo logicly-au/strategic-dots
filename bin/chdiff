@@ -1,0 +1,51 @@
+#!/usr/bin/perl -w
+# see also docdiff, vimdiff, wdiff, xxd/od + diff
+use strict;
+no warnings 'uninitialized';
+use Algorithm::Diff;
+
+my ($old_fname, $new_fname) = @ARGV;
+
+open my $old_f, $old_fname or die "Open failed $old_fname: $!";
+open my $new_f, $new_fname or die "Open failed $new_fname: $!";
+
+
+my ($old, $new);
+while (defined($old = <$old_f>) and defined($new = <$new_f>)) {
+    my @old = split //, $old;
+    my @new = split //, $new;
+
+    my $diff = Algorithm::Diff->new(\@old, \@new);
+    my ($o,$n,$m);
+    $m = '* ';
+    while ($diff->Next) {
+        my @o = $diff->Items(1);
+        my @n = $diff->Items(2);
+        if (my $s = join '', $diff->Same) {
+            $o .= $s;
+            $n .= $s;
+            $m .= ' ' x length($s);
+        } elsif (!@n) {
+            $m .= '^' x @o;
+            $n .= ' ' x @o;
+            $o .= join '', @o;
+        } elsif (!@o) {
+            $m .= 'v' x @n;
+            $o .= ' ' x @n;
+            $n .= join '', @n;
+        } else {
+            my $l = (@o > @n) ? @o : @n;
+            $m .= '*' x $l;
+            $o .= join '', map { defined($_) ? $_ : ' ' } @o[0..$l-1];
+            $n .= join '', map { defined($_) ? $_ : ' ' } @n[0..$l-1];
+        }
+    }
+    if ($o eq $n) {
+        print "  $o";
+    } else {
+        print "- $o$m\n+ $n";
+    }
+}
+print "- $_" while ($_ = <$old_f>);
+print "+ $_" while ($_ = <$new_f>);
+__END__

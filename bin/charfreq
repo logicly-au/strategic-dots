@@ -1,0 +1,10 @@
+#!/usr/bin/perl -n
+use YAML;
+
+$c{$_}++ for split //;
+
+END {
+    my $y = Dump(\%c);
+    $y =~ s/^---\r?\n?//;
+    print $y;
+}

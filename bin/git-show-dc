@@ -1,0 +1,14 @@
+#!/bin/bash
+# NOTE that danielp told a better way:
+#  git svn info --url
+#  git log --stat trunk.. 
+#  git log --stat --pretty=oneline --abbrev-commit trunk..
+
+dcn() { 
+    git svn dcommit -n \
+        | perl -nle '$f or ($f) = /^diff-tree (\S+)/; ($t) = / (\S+)$/;' \
+                 -e 'END { print qq{$f $t} }'; 
+}; 
+
+echo `dcn`
+git diff --stat `dcn`

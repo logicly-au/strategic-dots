@@ -1,0 +1,37 @@
+#!/usr/bin/perl -wl
+
+use HTML::LinkExtor;
+use LWP::Simple;
+use URI;
+
+die "No URL/File\n" unless @ARGV;
+
+# Also wanted param link from:
+# http://accent.gmu.edu/browse_language.php?function=detail&speakerid=71
+$HTML::Tagset::linkElements{param} = ['value','src'];
+
+for my $arg (@ARGV) {
+	if($arg =~ m!//!) {
+		$url = URI->new($arg);
+
+		#map { print $_,' = ', $url->$_ } qw(scheme host path as_string authority);
+		$doc = get $url or die "Couldn't get";
+	} else {
+		open my $file, $arg or die $!;
+		local($/) = undef;
+		$doc = <$file>;
+	}
+
+	$p = HTML::LinkExtor->new(\&cb, $url);
+	$p->parse($doc);
+}
+
+sub cb { 
+    my $tag = shift; 
+    %a = @_; 
+    print $a{href} if $a{href};
+    print $a{value} if $tag eq 'param' && $a{value};
+}
+
+#<param name="src" value="http://chnm.gmu.edu/accent/soundtracks/english14.mov">
+#(a=HTML::LinkExtor;perl -M$a -le "\$p=$a->new(" -e 'sub{shift@_;%a=@_;$_=$a{href};print if(/mp3$/)},"http://aquariusrecords.org/"); $p->parse_file("newest.html")')

@@ -1,0 +1,3 @@
+#!/usr/bin/perl -ple
+use URI::Escape;
+$_=uri_escape($_);

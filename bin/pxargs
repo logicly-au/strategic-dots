@@ -1,0 +1,10 @@
+#!/usr/bin/perl -nl
+
+s/'/\\'/g;
+push @t, $_;
+
+END {
+    print "'", join("' '",@t), "'";
+}
+
+#perl -nle '$q="\x27";s/$q/\\$q7/g; push @t, $_; END { print $q, join("$q $q",@t), $q }

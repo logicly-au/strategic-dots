@@ -1,0 +1,28 @@
+#!/usr/bin/perl -l -a -w -n -s -F/\t/
+
+=pod
+
+ncut '-f=field1,field4,total*' file.tsv
+
+ncut - named and ordered field cut
+
+can sneak in perl regexp stuff
+
+=cut
+
+BEGIN {
+	die "use -f=name1,name2" unless $f;
+	my @f = split /,/, $f;
+	{ no warnings 'once';
+	  $_ = <>; }
+	chomp;
+	@F = split /\t/;
+	#$re = join '|', @f; @keep = grep { $F[$_] =~ /($re)$/ } 0..$#F;
+	for $f (@f) {
+		push @keep, grep { $F[$_] =~ /$f/ } 0..$#F;
+	}
+	print join "\t", @F[@keep];
+}
+
+print join "\t", @F[@keep];
+

@@ -1,0 +1,104 @@
+#!/usr/bin/perl 
+# deb-perl-deps `pmpath SD::Slurp` | g -v NOT | perl -ple 's/.*= //' | sort -u
+
+use strict;
+use warnings;
+
+use Module::ScanDeps;
+#use Module::Info; # crappy
+#use version;
+use Module::CoreList;
+use YAML;
+
+my $core = 'Module::CoreList';
+
+my @files = @ARGV;
+my $deps = scan_deps( files => \@files, recurse => 1, compile => 1);
+#print Dump( $deps );
+
+for (grep { $_->{type} eq 'module' } values %$deps) {
+    my $name = $_->{key};
+    $name =~ s{/}{::}g; $name =~ s{\.pm$}{};
+
+    if (!$core->first_release($name)) {
+        my $out = `dpkg -S $_->{file} 2> /dev/null`;
+        if ($? == 0) {
+            (my $deb) = $out =~ /^(.*?):/;
+            print "$name = $deb\n";
+        } else {
+            my $deb_name = 'lib' . lc($name) . '-perl'; $deb_name =~ s/::/-/g;
+            my $out = `apt-cache show $deb_name > /dev/null 2> /dev/null`;
+            if ($? == 0) {
+                print "$name = $deb_name\n";
+            } else {
+                print "$name NOT FOUND\n";
+            }
+        }
+    }
+}
+
+__END__
+    no warnings 'uninitialized';
+    #my $mod = Module::Info->new_from_file($_->{file});
+    #my $mod = Module::Info->new_from_module($name);
+    #print join "\t", $name, $mod->version,"\n" if !$mod->is_core;
+    #print "$_->{file}\n" if !$mod->is_core;
+
+Example of $deps entry:
+
+---
+Apache.pm:
+  file: /usr/lib/perl5/Apache.pm
+  key: Apache.pm
+  type: module
+  used_by:
+    - SD/Crypt/Rekey.pm
+    - CGI.pm
+    - CGI/Cookie.pm
+    - mod_perl.pm
+  uses:
+    - auto/Apache/typemap
+    - strict.pm
+    - mod_perl.pm
+    - Exporter.pm
+    - Apache/Constants.pm
+    - Apache/Connection.pm
+    - Apache/Server.pm
+    - Apache/Table.pm
+Apache/Connection.pm:
+  file: /usr/lib/perl5/Apache/Connection.pm
+  key: Apache/Connection.pm
+  type: module
+  used_by:
+    - Apache.pm
+  uses:
+    - mod_perl.pm
+warnings.pm:
+  file: /usr/share/perl/5.8/warnings.pm
+  key: warnings.pm
+  type: module
+  used_by:
+    - SD/Crypt/Rekey.pm
+    - SD/Slurp.pm
+    - constant.pm
+    - vars.pm
+    - File/Basename.pm
+    - File/Find.pm
+    - File/Copy.pm
+    - File/Path.pm
+    - Compress/Zlib.pm
+    - Carp/Heavy.pm
+    - warnings/register.pm
+    - Text/ParseWords.pm
+    - utf8_heavy.pl
+    - threads/shared.pm
+    - sort.pm
+    - IO.pm
+    - File/stat.pm
+    - Tie/Hash.pm
+    - IO/Select.pm
+    - Socket.pm
+    - Class/Struct.pm
+  uses:
+    - Carp.pm
+

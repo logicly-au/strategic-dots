@@ -1,0 +1,19 @@
+#!/usr/bin/perl -wl
+
+use DateTime;
+use DateTime::Format::Duration;
+
+my $start = DateTime->now(time_zone=>'local');
+print "Start time: ", $start->strftime("%H:%M:%S");
+
+print "=============================================";
+system(@ARGV);
+print "=============================================";
+
+my $end = DateTime->now(time_zone=>'local');
+my $formatter = DateTime::Format::Duration->new(
+                    pattern => '%H:%M:%S', normalize => 'ISO');
+
+print "Start time: ", $start->strftime('%H:%M:%S');
+print "End   time: ", $end->strftime('%H:%M:%S');
+print "Total time: ", $formatter->format_duration($end - $start);
