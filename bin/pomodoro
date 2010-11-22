@@ -1,0 +1,78 @@
+#!/usr/bin/env perl
+
+use strict;
+use Time::HiRes 'usleep';
+use Getopt::Long;
+
+my $status_line = $ENV{POMODORO_STATUS} ||
+    'Pomodoro - *$driver - $time - $task';
+my $minutes = $ENV{POMODORO_TIME} || 25;
+my $done_msg = $ENV{POMODORO_DONE} ||
+    ">>> YOUR POMODORO IS DONE DONE DONE DONE DONE DONE DONE DONE <<<";
+my $output_file = "$ENV{HOME}/.screen-status";
+my $tmp_file = "/tmp/$ENV{USER}-screen-status";
+
+my $start = time;
+my $stop = $start + $minutes * 60;
+my $seconds = 0;
+
+my $task = $ENV{POMODORO_TASK} ||
+    "POMODORO_TASK not defined!!";
+
+my $driver = '';
+
+my @args = GetOptions(
+    "seconds=i" => \$seconds,
+    "task=s" => \$task,
+);
+
+$stop = $start + $seconds if $seconds;
+$stop++;
+
+{
+    while (1) {
+        my $time = time;
+        last if $time > $stop;
+        printout(generate_status_line());
+        usleep(500);
+    }
+
+    for (1..4) {
+        printout($done_msg);
+        sleep 1;
+        printout('');
+        sleep 1;
+    }
+    printout("Take a break!");
+
+    exit 0;
+}
+
+sub generate_status_line {
+    my ($driver, $time);
+    my $driver_file = "$ENV{HOME}/.driver";
+    $driver = -e $driver_file ? do {
+        open IN, $driver_file;
+        my $line = <IN>;
+        close IN;
+        $line;
+    } : $ENV{USER};
+    $time = $stop - time;
+    my $mins = $time / 60;
+    my $secs = $time % 60;
+    my $time = sprintf "%02d:%02d", $mins, $secs;
+    my $line = $status_line;
+    $line =~ s/\$driver/$driver/;
+    $line =~ s/\$time/$time/;
+    $line =~ s/\$task/$task/;
+    return $line;
+}
+
+sub printout {
+    my $line = shift;
+    chomp $line;
+    open OUT, ">$tmp_file";
+    print OUT "$line\n";
+    close OUT;
+    rename $tmp_file, $output_file;
+}

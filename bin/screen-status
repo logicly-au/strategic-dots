@@ -1,0 +1,6 @@
+#!/bin/sh
+
+while true; do
+    echo `if [ -f ~/.screen-status ]; then cat ~/.screen-status; fi`
+    sleep 1
+done
