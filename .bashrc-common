@@ -107,3 +107,6 @@ alias mp='make purge'
 alias mi='make install'
 alias smi='sudo make install'
 alias pfunk='perl -MConfig -MYAML -e "print Dump \%Config" | vim -'
+
+export PERL5LIB=$HOME/src/cogwiki-pm/lib:$HOME/src/strategic-wiki-storyboard/lib
+export COGWIKI_SYMLINK_INSTALL=1

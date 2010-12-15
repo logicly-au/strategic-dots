@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd $HOME/src/strategic-stories
+
+cogwiki update
+cogwiki make
+cogwiki start -s Starman
