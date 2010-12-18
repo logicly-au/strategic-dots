@@ -1,8 +1,8 @@
 #!/bin/sh
 
-cd $HOME/src/cogwiki-pm
+cd $HOME/src/cog-pm
 git pull origin master
-cd $HOME/src/strategic-wiki-storyboard
+cd $HOME/src/strategic-storyboard-pm
 git pull origin master
 cd $HOME/src/strategic-stories
 git pull origin master
