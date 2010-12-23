@@ -1,8 +1,10 @@
 #!/bin/sh
 
 cd $HOME/src/cog-pm
-git pull origin master
+git pull -all
+cd $HOME/src/cogwiki-pm
+git pull -all
 cd $HOME/src/strategic-storyboard-pm
-git pull origin master
+git pull -all
 cd $HOME/src/strategic-stories
-git pull origin master
+git pull -all

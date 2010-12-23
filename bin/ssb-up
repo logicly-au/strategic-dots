@@ -1,6 +1,5 @@
 #!/bin/sh
 
-export PATH=$HOME/src/cog-pm/bin:$PATH
 export PERL5LIB=$HOME/src/cog-pm/lib:$HOME/src/cogwiki-pm/lib:$HOME/src/strategic-storyboard-pm/lib
 cd $HOME/src/strategic-stories
 
