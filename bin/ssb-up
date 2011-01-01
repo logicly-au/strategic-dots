@@ -3,6 +3,6 @@
 export PERL5LIB=$HOME/src/cog-pm/lib:$HOME/src/cogwiki-pm/lib:$HOME/src/strategic-storyboard-pm/lib
 cd $HOME/src/strategic-stories
 
-cog update
-cog make
+cog update || exit 1
+cog make || exit 1
 cog start -s Starman

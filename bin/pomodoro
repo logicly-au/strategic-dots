@@ -15,16 +15,26 @@ my $tmp_file = "/tmp/$ENV{USER}-screen-status";
 my $start = time;
 my $stop = $start + $minutes * 60;
 my $seconds = 0;
+my $done = 0;
 
-my $task = $ENV{POMODORO_TASK} ||
-    "POMODORO_TASK not defined!!";
-
+my $task;
 my $driver = '';
 
-my @args = GetOptions(
+GetOptions(
     "seconds=i" => \$seconds,
     "task=s" => \$task,
+    "done" => \$done,
 );
+
+if ($done) {
+    unlink $output_file;
+    exit;
+}
+
+$task ||=
+    $ENV{POMODORO_TASK} ||
+    join(' ', @ARGV) ||
+    "POMODORO_TASK not defined!!";
 
 $stop = $start + $seconds if $seconds;
 $stop++;
